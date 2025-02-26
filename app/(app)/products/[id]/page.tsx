@@ -32,7 +32,7 @@ const product = {
   stock: 65,
 }
 
-export default function ProductPage({ params }: { params: { id: string } }) {
+export default function ProductPage() {
   const [quantity, setQuantity] = useState(1)
   const { addToCart } = useBasket()
 
@@ -132,7 +132,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               <CardDescription>What our customers are saying about {product.name}</CardDescription>
             </CardHeader>
             <CardContent>
-              <ReviewSection productId={params.id} />
+              <ReviewSection />
             </CardContent>
             <CardFooter>
               <Button variant="outline" className="w-full">

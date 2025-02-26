@@ -21,7 +21,7 @@ const reviews = [
   // Add more reviews as needed
 ]
 
-export function ReviewSection({ productId }: { productId: string }) {
+export function ReviewSection() {
   return (
     <div className="space-y-6">
       {reviews.map((review) => (
