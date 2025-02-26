@@ -20,7 +20,7 @@ export default function UserDropDown() {
 
     const LoginButton = () => (
         <Button asChild variant="link">
-            <Link href="/sign-in">Sign In</Link>
+            <Link href="/auth/sign-in">Sign In</Link>
         </Button>
     );
 
