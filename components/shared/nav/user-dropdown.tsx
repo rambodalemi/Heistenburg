@@ -56,7 +56,7 @@ export default function UserDropDown() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {user.publicMetadata.role === "admin" && (
-                    <Link href="/panel">
+                    <Link href="/admin">
                         <DropdownMenuItem>
                             <UserIcon className="mr-2 size-4" aria-hidden="true" />
                             AdminPanel

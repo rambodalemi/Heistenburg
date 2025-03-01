@@ -1,11 +1,9 @@
-"use client"
-
-import { motion } from "framer-motion"
+import Image from "next/image"
+import { Shield, Zap, Lock, Headphones } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import localFont from "next/font/local";
-import { cn } from "@/lib/utils"
-import Image from "next/image";
+import { cn } from "@/lib/utils";
 import ShinyText from "../shiney-text";
-import { Card } from "../ui/card";
 
 const gta = localFont({
     src: "./Pricedown-Bl.otf",
@@ -13,159 +11,102 @@ const gta = localFont({
     weight: "100 900",
 });
 
-function ElegantShape({
-    className,
-    delay = 0,
-    width = 400,
-    height = 100,
-    rotate = 0,
-}: {
-    className?: string
-    delay?: number
-    width?: number
-    height?: number
-    rotate?: number
-    gradient?: string
-}) {
+export default function LandingSection() {
     return (
-        <motion.div
-            initial={{
-                opacity: 0,
-                y: -150,
-                rotate: rotate - 15,
-            }}
-            animate={{
-                opacity: 1,
-                y: 0,
-                rotate: rotate,
-            }}
-            transition={{
-                duration: 2.4,
-                delay,
-                ease: [0.23, 0.86, 0.39, 0.96],
-                opacity: { duration: 1.2 },
-            }}
-            className={cn("absolute", className)}
-        >
-            <motion.div
-                animate={{
-                    y: [0, 15, 0],
-                }}
-                transition={{
-                    duration: 12,
-                    repeat: Number.POSITIVE_INFINITY,
-                    ease: "easeInOut",
-                }}
-                style={{
-                    width,
-                    height,
-                }}
-                className="relative"
-            >
-                <Image src="/Italo_GTO.png" width={1000} height={1000} alt="Example" />
-                <Image src="/Example.png" width={1000} height={1000} alt="Example" />
-                <Image src="/Deluxo.png" width={1000} height={1000} alt="Example" />
-                <Image src="/Deluxo1.png" width={1000} height={1000} alt="Example" />
-                <Image src="/Example2.png" width={1000} height={1000} alt="Example" />
-            </motion.div>
-        </motion.div>
-    )
-}
-
-export default function HeroGeometric({
-    title1 = "Welcome to",
-    title2 = "Heistenburg",
-}: {
-    badge?: string
-    title1?: string
-    title2?: string
-}) {
-    const fadeUpVariants = {
-        hidden: { opacity: 0, y: 30 },
-        visible: (i: number) => ({
-            opacity: 1,
-            y: 0,
-            transition: {
-                duration: 1,
-                delay: 0.5 + i * 0.2,
-                ease: [0.25, 0.4, 0.25, 1],
-            },
-        }),
-    }
-
-    return (
-        <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden rounded-xl">
-            <div className="absolute inset-0 overflow-hidden">
-                <ElegantShape
-                    delay={0.3}
-                    width={600}
-                    height={140}
-                    rotate={12}
-                    gradient="from-indigo-500/[0.15]"
-                    className="left-[-10%] md:left-[-5%] top-[15%] md:top-[20%]"
-                />
-
-                <ElegantShape
-                    delay={0.5}
-                    width={500}
-                    height={120}
-                    rotate={-15}
-                    gradient="from-rose-500/[0.15]"
-                    className="right-[-5%] md:right-[0%] top-[70%] md:top-[75%]"
-                />
-
-                <ElegantShape
-                    delay={0.4}
-                    width={300}
-                    height={80}
-                    rotate={-8}
-                    gradient="from-violet-500/[0.15]"
-                    className="left-[5%] md:left-[10%] bottom-[5%] md:bottom-[10%]"
-                />
-
-                <ElegantShape
-                    delay={0.6}
-                    width={200}
-                    height={60}
-                    rotate={20}
-                    gradient="from-amber-500/[0.15]"
-                    className="right-[15%] md:right-[20%] top-[10%] md:top-[15%]"
-                />
-
-                <ElegantShape
-                    delay={0.7}
-                    width={150}
-                    height={40}
-                    rotate={-25}
-                    gradient="from-cyan-500/[0.15]"
-                    className="left-[20%] md:left-[25%] top-[5%] md:top-[10%]"
-                />
+        <section className="relative min-h-screen overflow-hidden bg-black">
+            {/* Background gradient */}
+            <div className="absolute inset-0 z-0">
+                <div className="absolute inset-0 bg-gradient-to-br from-green-900/40 via-black to-amber-900/30" />
+                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_20%,rgba(0,128,0,0.2)_0%,transparent_50%)]" />
+                <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_80%,rgba(218,165,32,0.2)_0%,transparent_50%)]" />
+                <div className="absolute inset-0 bg-black/50" />
             </div>
 
-            <div className="relative z-10 container mx-auto px-4 md:px-6">
-                <div className="max-w-3xl mx-auto text-center">
-                    <Card className="p-6 md:p-8 bg-[#030303/90] backdrop-blur-lg rounded-xl">
-                        <motion.div custom={1} variants={fadeUpVariants} initial="hidden" animate="visible">
-                            <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold mb-6 md:mb-8 tracking-tight">
-                                <span className="bg-clip-text text-transparent bg-gradient-to-b from-white to-white/80">{title1}</span>
-                                <br />
-                                <span
-                                    className={cn(
-                                        "bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 to-green-300 ",
-                                        gta.className,
-                                    )}
-                                >
-                                    {title2}
+            {/* Content */}
+            <div className="container relative z-10 mx-auto px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
+                <div className="grid gap-12 lg:grid-cols-2 lg:gap-8 items-center">
+                    <div className="space-y-8">
+                        <div>
+                            <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl">
+                                <span className="block">Welcome to</span>
+                                <span className={cn("block mt-2 bg-gradient-to-r from-green-400 to-amber-400 bg-clip-text text-transparent", gta.className,)}>
+                                    Heistenburg
                                 </span>
                             </h1>
-                            <ShinyText text="Biggest GTA Online Modding Service" disabled={false} speed={3} className='custom-class' />
-                        </motion.div>
-                    </Card>
+                            <ShinyText text="Biggest GTA Online Modding Service" disabled={false} speed={3} className='custom-class mt-6 max-w-xl text-lg' />
+
+                        </div>
+
+                        <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
+                            <Button
+                                size="lg"
+                                className="bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white border-0"
+                            >
+                                Shop Now
+                            </Button>
+                            <Button size="lg" variant="outline" className="border-amber-400 text-amber-400 hover:bg-amber-400/10">
+                                Learn More
+                            </Button>
+                        </div>
+
+                        {/* Trust indicators */}
+                        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                            <div className="flex flex-col items-center text-center p-3 rounded-lg bg-black/40 border border-green-900/50">
+                                <Shield className="h-6 w-6 text-green-400 mb-2" />
+                                <span className="text-sm font-medium text-gray-200">Secure Payments</span>
+                            </div>
+                            <div className="flex flex-col items-center text-center p-3 rounded-lg bg-black/40 border border-green-900/50">
+                                <Zap className="h-6 w-6 text-amber-400 mb-2" />
+                                <span className="text-sm font-medium text-gray-200">Fast Delivery</span>
+                            </div>
+                            <div className="flex flex-col items-center text-center p-3 rounded-lg bg-black/40 border border-green-900/50">
+                                <Headphones className="h-6 w-6 text-green-400 mb-2" />
+                                <span className="text-sm font-medium text-gray-200">24h/7 Support</span>
+                            </div>
+                            <div className="flex flex-col items-center text-center p-3 rounded-lg bg-black/40 border border-green-900/50">
+                                <Lock className="h-6 w-6 text-amber-400 mb-2" />
+                                <span className="text-sm font-medium text-gray-200">Safe Login</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="relative lg:ml-auto">
+                        <div className="relative mx-auto w-full max-w-md overflow-hidden rounded-2xl bg-black/30 p-2 shadow-xl backdrop-blur-sm border border-green-900/30">
+                            <Image
+                                src="/heist_addiction.jpg"
+                                width={500}
+                                height={600}
+                                alt="Product showcase"
+                                className="w-full rounded-xl object-cover"
+                            />
+                            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-sm font-medium text-amber-400">Featured Product</p>
+                                        <h3 className="text-xl font-bold text-white">Premium Collection</h3>
+                                    </div>
+                                    <div className="rounded-full bg-green-600 px-3 py-1 text-sm font-semibold text-white">-20% OFF</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Decorative elements */}
+                        <div className="absolute -top-4 -right-4 h-24 w-24 rounded-full bg-gradient-to-br from-green-500 to-green-600 blur-2xl opacity-30" />
+                        <div className="absolute -bottom-8 -left-8 h-40 w-40 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 blur-3xl opacity-20" />
+                    </div>
                 </div>
             </div>
 
-            <div className="absolute inset-0 bg-gradient-to-t from-[#030303] via-transparent to-[#030303]/80 pointer-events-none" />
-        </div>
+            {/* Security badge */}
+            <div className="relative z-10 container mx-auto px-4 pb-8">
+                <div className="mx-auto max-w-md rounded-xl bg-black/60 backdrop-blur-sm border border-green-900/30 p-4 flex items-center justify-center gap-3">
+                    <Lock className="h-5 w-5 text-green-400" />
+                    <p className="text-sm text-gray-300">
+                        <span className="font-medium text-white">Stripe / Paypal</span> - Your credit is always protected
+                    </p>
+                </div>
+            </div>
+        </section>
     )
 }
 

@@ -16,7 +16,7 @@ export default function PaymentConfirmationPage() {
     const redirectStatus = searchParams.get("redirect_status")
     if (redirectStatus === "succeeded") {
       setStatus("success")
-      clearCart() // Clear the cart on successful payment
+      clearCart() 
     } else {
       setStatus("cancelled")
     }

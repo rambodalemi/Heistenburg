@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "@/components/ui/sonner";
+import TanstackProvider from "@/providers/tanstack-provider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -41,12 +43,14 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" className="dark">
+      <TanstackProvider>
         <body
           className={`${inter.className} antialiased min-h-screen bg-gradient-to-b from-black to-zinc-900 text-zinc-50`}
         >
-
             {children}
+            <Toaster />
         </body>
+        </TanstackProvider>
       </html>
     </ClerkProvider>
   );

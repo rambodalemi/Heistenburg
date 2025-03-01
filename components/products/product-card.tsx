@@ -2,25 +2,29 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Star, ShoppingCart } from "lucide-react"
+import { Star, ShoppingCart, Truck } from 'lucide-react'
 import Image from "next/image"
 import Link from "next/link"
 import { useBasket } from "@/components/shared/nav/basket-context"
+import { CarouselItem } from "../ui/carousel"
 
-interface ProductCardProps {
-  id: string
-  name: string
-  price: number
-  rating: number
-  image: string
+type ProductCardProps = {
+  _id: string;
+  name: string;
+  price: number;
+  rating: number;
+  image: string;
+  reviewCount: number;
+  details: string;
+  deliveryEstimate: string;
 }
 
-export function ProductCard({ id, name, price, rating, image }: ProductCardProps) {
+export function ProductCard({ _id, name, price, rating, image, reviewCount, details, deliveryEstimate }: ProductCardProps) {
   const { addToCart } = useBasket()
 
   const handleAddToCart = () => {
     addToCart({
-      id,
+      id: _id.toString(),
       name,
       price,
       quantity: 1,
@@ -29,9 +33,10 @@ export function ProductCard({ id, name, price, rating, image }: ProductCardProps
   }
 
   return (
-    <Card className="overflow-hidden">
+
+    <Card className="overflow-hidden bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800">
       <CardHeader className="p-0">
-        <Link href={`/products/${id}`}>
+        <Link href={`/products/${_id}`}>
           <Image
             src={image || "/placeholder.svg"}
             alt={name}
@@ -42,25 +47,27 @@ export function ProductCard({ id, name, price, rating, image }: ProductCardProps
         </Link>
       </CardHeader>
       <CardContent className="p-4">
-        <Link href={`/products/${id}`}>
+        <Link href={`/products/${_id}`}>
           <CardTitle className="text-lg mb-2">{name}</CardTitle>
         </Link>
-        <div className="flex items-center mb-2">
-          {[...Array(5)].map((_, i) => (
-            <Star
-              key={i}
-              className={`h-4 w-4 ${
-                i < Math.floor(rating) ? "fill-yellow-500 text-yellow-500" : "fill-zinc-700 text-zinc-700"
-              }`}
-            />
-          ))}
-          <span className="ml-2 text-sm text-zinc-400">{rating.toFixed(1)}</span>
+        <p className="text-sm text-zinc-400 mb-2">{details}</p>
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-lg font-bold text-green-500">${price.toFixed(2)}</div>
+          <div className="flex items-center">
+            <Star className="h-4 w-4 fill-yellow-500 text-yellow-500 mr-1" />
+            <span className="text-sm text-zinc-400">
+              {rating.toFixed(1)} ({reviewCount})
+            </span>
+          </div>
         </div>
-        <div className="text-lg font-bold text-green-500">${price.toFixed(2)}</div>
+        <div className="flex items-center text-sm text-zinc-400">
+          <Truck className="h-4 w-4 mr-1" />
+          <span>Delivery: {deliveryEstimate}</span>
+        </div>
       </CardContent>
       <CardFooter>
         <Button
-          className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+          className="w-full bg-gradient-to-r from-green-600 to-yellow-600 hover:from-green-700 hover:to-yellow-700"
           onClick={handleAddToCart}
         >
           <ShoppingCart className="mr-2 h-4 w-4" />
@@ -68,6 +75,6 @@ export function ProductCard({ id, name, price, rating, image }: ProductCardProps
         </Button>
       </CardFooter>
     </Card>
+
   )
 }
-
