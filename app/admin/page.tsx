@@ -122,7 +122,7 @@ export default function AdminDashboard() {
       {/* Charts */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Sales Chart */}
-        <Card className="bg-black/40 border-green-900/30 backdrop-blur-sm">
+        {/* <Card className="bg-black/40 border-green-900/30 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
               <LineChart className="h-5 w-5" />
@@ -148,10 +148,10 @@ export default function AdminDashboard() {
               </ResponsiveContainer>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Orders by Category */}
-        <Card className="bg-black/40 border-green-900/30 backdrop-blur-sm">
+        {/* <Card className="bg-black/40 border-green-900/30 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
               <BarChart3 className="h-5 w-5" />
@@ -177,11 +177,11 @@ export default function AdminDashboard() {
               </ResponsiveContainer>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
 
       {/* Recent Orders */}
-      <Card className="bg-black/40 border-green-900/30 backdrop-blur-sm">
+      {/* <Card className="bg-black/40 border-green-900/30 backdrop-blur-sm">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-white">Recent Orders</CardTitle>
           <Button variant="ghost" size="sm" asChild>
@@ -227,7 +227,7 @@ export default function AdminDashboard() {
             </TableBody>
           </Table>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Quick Actions */}
       <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">

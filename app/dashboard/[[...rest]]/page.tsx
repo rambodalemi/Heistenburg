@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { UserProfile } from "@clerk/nextjs"
 import { ShoppingCart, Package, Clock, ArrowUpRight, ArrowDownRight, Package2 } from "lucide-react"
 
 const stats = [
@@ -57,9 +58,9 @@ const recentOrders = [
 
 export default function DashboardPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 flex justify-center items-center mx-auto">
       {/* Stats Grid */}
-      <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {/* <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
           <Card key={stat.name} className="bg-black/40 border-green-900/30 backdrop-blur-sm">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -79,11 +80,11 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         ))}
-      </div>
+      </div> */}
 
 
       {/* Recent Orders */}
-      <Card className="bg-black/40 border-green-900/30 backdrop-blur-sm">
+      {/* <Card className="bg-black/40 border-green-900/30 backdrop-blur-sm">
         <CardHeader>
           <CardTitle className="text-white">Recent Orders</CardTitle>
         </CardHeader>
@@ -123,7 +124,9 @@ export default function DashboardPage() {
             </table>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
+
+      <UserProfile/>
     </div>
   )
 }

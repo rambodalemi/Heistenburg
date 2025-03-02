@@ -1,73 +1,94 @@
 "use client"
 
-import Image from "next/image"
+import type React from "react"
+
 import { useState } from "react"
+import Image from "next/image"
+import { Upload, X } from "lucide-react"
+import { toast } from "sonner"
 
-export default function FileUpload() {
-  const [image, setImage] = useState<File | null>(null)
-  const [preview, setPreview] = useState<string | null>(null)
-  const [uploading, setUploading] = useState(false)
-  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null)
+import { Button } from "@/components/ui/button"
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+interface ImageUploadProps {
+  value: string
+  onChange: (url: string) => void
+}
+
+export function ImageUpload({ value, onChange }: ImageUploadProps) {
+  const [isUploading, setIsUploading] = useState(false)
+
+  // This is a mock upload function
+  // In a real application, you would use a service like Cloudinary, AWS S3, etc.
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      setImage(file)
-      setPreview(URL.createObjectURL(file))
+
+    if (!file) return
+
+    // Check file type
+    if (!file.type.includes("image")) {
+      toast.error("Please upload an image file")
+      return
     }
-  }
 
-  const handleUpload = async () => {
-    if (!image) return
-
-    setUploading(true)
-    const formData = new FormData()
-    formData.append("file", image)
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be less than 5MB")
+      return
+    }
 
     try {
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: JSON.stringify({ file: await toBase64(image) }),
-        headers: { "Content-Type": "application/json" },
-      })
+      setIsUploading(true)
 
-      const data = await response.json()
-      if (data.url) {
-        setUploadedUrl(data.url)
+      // In a real app, you would upload to a cloud storage service
+      // For this example, we'll create a mock URL using FileReader
+      const reader = new FileReader()
+
+      reader.onload = () => {
+        // This is just for demonstration - in a real app you'd get a URL from your upload service
+        const imageUrl = reader.result as string
+        onChange(imageUrl)
+        setIsUploading(false)
+        toast.success("Image uploaded successfully")
       }
+
+      reader.readAsDataURL(file)
     } catch (error) {
-      console.error("Upload error:", error)
-    } finally {
-      setUploading(false)
+      setIsUploading(false)
+      toast.error("Failed to upload image")
+      console.error(error)
     }
   }
 
-  // Convert File to Base64
-  const toBase64 = (file: File) =>
-    new Promise<string>((resolve, reject) => {
-      const reader = new FileReader()
-      reader.readAsDataURL(file)
-      reader.onload = () => resolve(reader.result as string)
-      reader.onerror = reject
-    })
-
   return (
-    <div className="space-y-4">
-      <input type="file" accept="image/*" onChange={handleFileChange} />
-      {preview && <Image src={preview} alt="Preview" className="w-32 h-32 object-cover" />}
-      <button
-        onClick={handleUpload}
-        disabled={uploading}
-        className="px-4 py-2 bg-blue-500 text-white rounded"
-      >
-        {uploading ? "Uploading..." : "Upload"}
-      </button>
-      {uploadedUrl && (
-        <div>
-          <p>Uploaded Image:</p>
-          <Image src={uploadedUrl} alt="Uploaded" className="w-32 h-32 object-cover" />
+    <div className="flex flex-col items-center gap-4">
+      {value ? (
+        <div className="relative w-full h-64">
+          <Image src={value || "/placeholder.svg"} alt="Product image" fill className="object-contain rounded-md" />
+          <Button
+            type="button"
+            variant="destructive"
+            size="icon"
+            className="absolute top-2 right-2"
+            onClick={() => onChange("")}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-md border-muted-foreground/25">
+          <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer">
+            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+              <Upload className="w-8 h-8 mb-4 text-muted-foreground" />
+              <p className="mb-2 text-sm text-muted-foreground">
+                <span className="font-semibold">Click to upload</span> or drag and drop
+              </p>
+              <p className="text-xs text-muted-foreground">PNG, JPG or WEBP (MAX. 5MB)</p>
+            </div>
+            <input type="file" className="hidden" onChange={handleUpload} accept="image/*" disabled={isUploading} />
+          </label>
         </div>
       )}
     </div>
   )
 }
+

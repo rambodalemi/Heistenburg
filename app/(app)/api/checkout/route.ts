@@ -3,13 +3,10 @@ import stripe from "@/lib/stripe"
 
 export async function POST(req: NextRequest) {
   try {
-    console.log("Checkout API route called")
 
     const { items, customerInfo } = await req.json()
-    console.log("Received data:", { items, customerInfo })
 
     if (!items || items.length === 0) {
-      console.log("No items in cart")
       return NextResponse.json({ error: "No items in cart" }, { status: 400 })
     }
 
@@ -18,14 +15,11 @@ export async function POST(req: NextRequest) {
         currency: "usd",
         product_data: {
           name: item.name,
-          images: [item.image],
         },
         unit_amount: Math.round(item.price * 100),
       },
       quantity: item.quantity,
     }))
-
-    console.log("Formatted line items:", lineItems)
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card", "paypal"],

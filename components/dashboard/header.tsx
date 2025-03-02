@@ -9,11 +9,11 @@ import { LayoutDashboard, ShoppingBag, User, Settings, LogOut, Bell, Menu } from
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { SignOutButton, UserButton } from "@clerk/nextjs"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Orders", href: "/dashboard/orders", icon: ShoppingBag },
-  { name: "Profile", href: "/dashboard/user-profile", icon: User },
 ]
 
 export default function DashboardProvider({
@@ -32,9 +32,8 @@ export default function DashboardProvider({
           <Link
             key={item.name}
             href={item.href}
-            className={`flex items-center gap-3 rounded-lg px-3 py-2 text-gray-300 transition-colors hover:bg-green-500/10 hover:text-white ${
-              isActive ? "bg-green-500/10 text-white" : ""
-            }`}
+            className={`flex items-center gap-3 rounded-lg px-3 py-2 text-gray-300 transition-colors hover:bg-green-500/10 hover:text-white ${isActive ? "bg-green-500/10 text-white" : ""
+              }`}
             onClick={() => setIsMobileMenuOpen(false)}
           >
             <item.icon className="h-5 w-5" />
@@ -66,13 +65,15 @@ export default function DashboardProvider({
             </div>
 
             <div className="border-t border-green-900/30 p-4">
-              <Button
-                variant="ghost"
-                className="w-full justify-start gap-2 text-gray-300 hover:bg-red-500/10 hover:text-red-500"
-              >
-                <LogOut className="h-5 w-5" />
-                Logout
-              </Button>
+              <SignOutButton>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-2 text-gray-300 hover:bg-red-500/10 hover:text-red-500"
+                >
+                  <LogOut className="h-5 w-5" />
+                  Logout
+                </Button>
+              </SignOutButton>
             </div>
           </div>
         </aside>
@@ -100,30 +101,13 @@ export default function DashboardProvider({
                   <div className="flex-1 overflow-auto py-4 px-4">
                     <NavItems />
                   </div>
-                  <div className="border-t border-green-900/30 p-4">
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start gap-2 text-gray-300 hover:bg-red-500/10 hover:text-red-500"
-                    >
-                      <LogOut className="h-5 w-5" />
-                      Logout
-                    </Button>
-                  </div>
                 </div>
               </SheetContent>
             </Sheet>
 
             <h1 className="text-xl font-semibold text-white">Dashboard</h1>
             <div className="ml-auto flex items-center gap-4">
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="h-5 w-5 text-gray-300" />
-                <Badge className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-green-600">
-                  3
-                </Badge>
-              </Button>
-              <Button variant="ghost" size="icon">
-                <Settings className="h-5 w-5 text-gray-300" />
-              </Button>
+              <UserButton />
             </div>
           </header>
 

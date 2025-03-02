@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation"
 import { LayoutDashboard, Package, ShoppingCart, Settings, LogOut, Menu, Users, LineChart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { UserButton, UserProfile } from "@clerk/clerk-react"
 
 const navigation = [
     {
@@ -35,7 +36,6 @@ const navigation = [
         ],
     },
     { name: "Customers", href: "/admin/customers", icon: Users },
-    { name: "Analytics", href: "/admin/analytics", icon: LineChart },
 ]
 
 export default function AdminProvider({
@@ -152,9 +152,8 @@ export default function AdminProvider({
 
                         <h1 className="text-xl font-semibold text-white">Admin Dashboard</h1>
                         <div className="ml-auto flex items-center gap-4">
-                            <Button variant="ghost" size="icon">
-                                <Settings className="h-5 w-5 text-gray-300" />
-                            </Button>
+                            <UserButton />
+
                         </div>
                     </header>
 

@@ -5,6 +5,7 @@ import {
 } from "@tanstack/react-query";
 import { getAllProducts } from "@/services/products-service";
 import AllProductsData from "@/components/data/products/all-products.data";
+import { Card } from "@/components/ui/card";
 
 export default async function ProductLists() {
   const queryClient = new QueryClient();
@@ -15,6 +16,7 @@ export default async function ProductLists() {
   });
 
   return (
+
     <HydrationBoundary state={dehydrate(queryClient)}>
       <AllProductsData />
     </HydrationBoundary>
