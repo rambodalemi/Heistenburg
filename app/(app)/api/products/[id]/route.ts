@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { dbConnect } from "@/lib/mongodb";
+import dbConnect from "@/lib/mongodb";
 import Product from "@/models/Product";
 import { productSchema } from "@/lib/validation/product";
 

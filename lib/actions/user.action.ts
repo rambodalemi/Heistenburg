@@ -1,7 +1,7 @@
 "use server";
 
 import User from "@/models/User";
-import { dbConnect } from "../mongodb";
+import dbConnect  from "../mongodb";
 
 export async function createUser(user: any) {
   try {

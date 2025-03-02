@@ -2,11 +2,11 @@ import { TableCell, TableRow } from '@/components/ui/table'
 import { OrderType } from '@/models/Order'
 import Link from 'next/link'
 
-export default function OrdersTable({ status, _id, user, items, createdAt, total }: OrderType) {
+export default function OrdersTable({ status, _id, email, discordId, paymentMethod, items, createdAt, total }: OrderType) {
     return (
         <TableRow key={_id} className="border-green-900/30 hover:bg-green-900/10">
             <TableCell className="text-white">{_id}</TableCell>
-            <TableCell className="text-gray-300">{user.email}</TableCell>
+            <TableCell className="text-gray-300">{email}</TableCell>
             <TableCell className="text-gray-300">
                 {items?.map((item, index) => (
                     <div key={index}>
@@ -19,8 +19,8 @@ export default function OrdersTable({ status, _id, user, items, createdAt, total
             <TableCell>
                 <span
                     className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${status === "Completed"
-                            ? "bg-green-500/10 text-green-500"
-                            : "bg-amber-500/10 text-amber-500"
+                        ? "bg-green-500/10 text-green-500"
+                        : "bg-amber-500/10 text-amber-500"
                         }`}
                 >
                     {status}

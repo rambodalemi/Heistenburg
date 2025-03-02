@@ -43,7 +43,7 @@ const AllOrdersData = () => {
                     </TableHeader>
                     <TableBody>
                         {data.map((order) => (
-                            <OrdersTable key={order._id} _id={order._id} user={order.user} items={order.items} total={order.total} status={order.status} createdAt={order.createdAt} />
+                            <OrdersTable key={order._id} discordId={order.discordId} paymentMethod={order.paymentMethod} _id={order._id} email={order.email} items={order.items} total={order.total} status={order.status} createdAt={order.createdAt} />
                         ))}
                     </TableBody>
                 </Table>

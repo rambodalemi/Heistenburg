@@ -4,7 +4,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Card } from "@/components/ui/card"
 import { currentUser } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
-import { dbConnect } from "@/lib/mongodb"
+import dbConnect from "@/lib/mongodb"
 import Order from "@/models/Order"
 
 

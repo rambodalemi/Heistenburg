@@ -74,6 +74,7 @@ export default function LandingSection() {
                         <div className="relative mx-auto w-full max-w-md overflow-hidden rounded-2xl bg-black/30 p-2 shadow-xl backdrop-blur-sm border border-green-900/30">
                             <Image
                                 src="/heist_addiction.jpg"
+                                priority
                                 width={500}
                                 height={600}
                                 alt="Product showcase"

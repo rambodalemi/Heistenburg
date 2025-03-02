@@ -1,29 +1,24 @@
-import mongoose from "mongoose";
+import mongoose from "mongoose"
 
 export interface OrderType {
-  _id: string;
-  user: {
-    _id: string;
-    email: string;
-  };
+  _id: string
+  email: string
+  discordId: string
   items: {
-    productId: mongoose.Types.ObjectId;
-    quantity: number;
-    price: number;
-    _id: string;
-    name: string;
-  }[];
-  total: number;
-  status: string;
-  createdAt: Date;
+    productId: mongoose.Types.ObjectId
+    quantity: number
+    price: number
+    name: string
+  }[]
+  total: number
+  status: string
+  createdAt: Date
+  paymentMethod: string
 }
 
 const OrderSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
+  email: { type: String, required: true },
+  discordId: { type: String, required: true },
   items: [
     {
       productId: {
@@ -39,6 +34,7 @@ const OrderSchema = new mongoose.Schema({
   total: { type: Number, required: true },
   status: { type: String, default: "pending" },
   createdAt: { type: Date, default: Date.now },
-});
+  paymentMethod: { type: String, required: true },
+})
 
-export default mongoose.models.Order || mongoose.model("Order", OrderSchema);
+export default mongoose.models.Order || mongoose.model("Order", OrderSchema)

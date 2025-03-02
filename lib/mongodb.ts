@@ -16,18 +16,29 @@ if (!cached) {
   };
 }
 
-export const dbConnect = async () => {
-  if (cached.conn) return cached.conn;
+async function dbConnect() {
+  if (cached.conn) {
+    return cached.conn;
+  }
 
-  cached.promise =
-    cached.promise ||
-    mongoose.connect(MONGODB_URI, {
-      dbName: "heistenburg",
+  if (!cached.promise) {
+    const opts = {
       bufferCommands: false,
-      connectTimeoutMS: 30000,
-    });
+    };
 
-  cached.conn = await cached.promise;
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+      return mongoose;
+    });
+  }
+
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    throw e;
+  }
 
   return cached.conn;
-};
+}
+
+export default dbConnect;

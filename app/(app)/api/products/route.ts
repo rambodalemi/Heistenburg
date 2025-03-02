@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { dbConnect } from "@/lib/mongodb"
+import dbConnect from "@/lib/mongodb";
 import Product from '@/models/Product'
 import { productSchema } from '@/lib/validation/product'
 
@@ -21,6 +21,6 @@ export async function POST(req: Request) {
     const product = await Product.create(validatedData)
     return NextResponse.json(product)
   } catch (error) {
-    return NextResponse.json({ error: 'Error creating product' }, { status: 500 })
+    return NextResponse.json({ error }, { status: 500 })
   }
 }

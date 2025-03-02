@@ -18,7 +18,6 @@ export default async function ProductLists() {
     <HydrationBoundary state={dehydrate(queryClient)}>
       <AllProductsData />
     </HydrationBoundary>
-
   );
 };
 

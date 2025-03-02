@@ -1,47 +1,30 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { loadStripe } from "@stripe/stripe-js";
-import { Elements } from "@stripe/react-stripe-js";
-import { CheckoutForm } from "@/components/checkout-form";
-import type { CartItem } from "@/components/shared/nav/basket";
-import { useUser } from "@clerk/nextjs";
-import { createPaymentIntent } from "@/services/paymentService";
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { useBasket } from "@/components/shared/nav/basket-context"
+import CheckoutForm from "@/components/checkout-form"
 
 export default function CheckoutPage() {
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const { user, isLoaded } = useUser();
+  const { cart } = useBasket()
+  const router = useRouter()
 
   useEffect(() => {
-    const storedCart = localStorage.getItem("cart");
-    if (storedCart) {
-      const parsedCart = JSON.parse(storedCart);
-      setCart(parsedCart);
-
-      if (parsedCart.length > 0 && user?.id) {
-        createPaymentIntent(user.id, parsedCart)
-          .then((data) => setClientSecret(data.clientSecret))
-          .catch((error) => console.error("Error creating PaymentIntent:", error));
-      }
+    // Check if cart is empty
+    const savedCart = localStorage.getItem("cart")
+    if (!savedCart || JSON.parse(savedCart).length === 0) {
+      router.push("/") // Redirect to home page if cart is empty
     }
-  }, [user]);
+  }, [router])
 
-  if (!isLoaded) {
-    return <div>Loading...</div>;
+  if (cart.length === 0) {
+    return null // Return null to prevent flash of content before redirect
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto py-10 px-4">
       <h1 className="text-3xl font-bold mb-8">Checkout</h1>
-      {clientSecret && (
-        <Elements stripe={stripePromise} options={{ clientSecret }}>
-          <CheckoutForm cart={cart} />
-        </Elements>
-      )}
-      {!clientSecret && <div>Loading...</div>}
+      <CheckoutForm />
     </div>
-  );
+  )
 }
