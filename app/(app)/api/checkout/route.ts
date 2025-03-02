@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
           shipping_rate_data: {
             type: "fixed_amount",
             fixed_amount: {
-              amount: 1000,
+              amount: 0,
               currency: "usd",
             },
             display_name: "Standard Shipping",
