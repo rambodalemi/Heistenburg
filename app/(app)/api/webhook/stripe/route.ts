@@ -5,32 +5,19 @@ import stripe from "@/lib/stripe"
 import dbConnect from "@/lib/mongodb"
 import Order from "@/models/Order"
 
+// Make sure to disable the automatic body parsing
 export const config = {
   api: {
     bodyParser: false,
   },
 }
 
-async function getRawBody(req: NextRequest): Promise<string> {
-  const chunks = []
-  const reader = req.body?.getReader()
-
-  if (!reader) {
-    throw new Error("Request body is empty")
-  }
-
-  while (true) {
-    const { done, value } = await reader.read()
-    if (done) break
-    chunks.push(value)
-  }
-
-  return Buffer.concat(chunks).toString("utf8")
-}
-
 export async function POST(req: NextRequest) {
   try {
-    const rawBody = await getRawBody(req)
+    // Get the raw body as a Uint8Array
+    const rawBody = await req.clone().arrayBuffer()
+    // Convert to string
+    const rawBodyString = Buffer.from(rawBody).toString("utf8")
 
     const headersList = await headers()
     const signature = headersList.get("stripe-signature")
@@ -40,7 +27,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing stripe-signature header" }, { status: 400 })
     }
 
-    if (!process.env.STRIPE_WEBHOOK_SECRET) {
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+    if (!webhookSecret) {
       console.error("Missing STRIPE_WEBHOOK_SECRET")
       return NextResponse.json({ error: "Server configuration error" }, { status: 500 })
     }
@@ -48,12 +36,22 @@ export async function POST(req: NextRequest) {
     let event: Stripe.Event
 
     try {
-      event = stripe.webhooks.constructEvent(rawBody, signature, process.env.STRIPE_WEBHOOK_SECRET)
+      // Verify the webhook signature
+      event = stripe.webhooks.constructEvent(rawBodyString, signature, webhookSecret)
+      console.log("✅ Webhook signature verified")
     } catch (err: any) {
-      console.error(`❌ Webhook signature verification failed: ${err.message}`)
-      return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 })
+      console.error(`❌ Webhook signature verification failed:`, err)
+      return NextResponse.json(
+        {
+          error: `Webhook Error: ${err.message}`,
+          receivedSignature: signature,
+          bodyLength: rawBodyString.length,
+        },
+        { status: 400 },
+      )
     }
 
+    // Handle the event
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session
 
@@ -69,8 +67,10 @@ export async function POST(req: NextRequest) {
 
         const lineItems = expandedSession.line_items?.data || []
 
+        // Connect to MongoDB
         await dbConnect()
 
+        // Create the order in MongoDB
         const order = new Order({
           email: session.metadata?.email || "unknown",
           discordId: session.metadata?.discordId || "unknown",
@@ -84,6 +84,7 @@ export async function POST(req: NextRequest) {
           status: "paid",
           createdAt: new Date(),
           paymentMethod: session.payment_method_types?.[0] || "unknown",
+          stripeSessionId: session.id, // Add this to track the session
         })
 
         await order.save()
