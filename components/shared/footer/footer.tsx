@@ -9,29 +9,17 @@ import { FaDiscord } from "react-icons/fa";
 
 const footerLinks = [
   {
-    title: "Overview",
-    href: "#",
+    title: "About Us",
+    href: "/about",
   },
   {
-    title: "Features",
-    href: "#",
+    title: "Products",
+    href: "/products",
   },
   {
-    title: "Pricing",
-    href: "#",
-  },
-  {
-    title: "Careers",
-    href: "#",
-  },
-  {
-    title: "Help",
-    href: "#",
-  },
-  {
-    title: "Privacy",
-    href: "#",
-  },
+    title: "Discord",
+    href: "/discord",
+  },  
 ];
 
 const Footer = () => {
