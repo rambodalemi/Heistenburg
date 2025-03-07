@@ -51,7 +51,7 @@ export function ProductCard({ _id, name, price, rating, image, reviewCount, deta
           <CardTitle className="text-lg mb-2">{name}</CardTitle>
         </Link>
         <p className="text-sm text-zinc-400 mb-2">{details}</p>
-        <div className="flex items-center justify-between mb-2">
+        {/* <div className="flex items-center justify-between mb-2">
           <div className="text-lg font-bold text-green-500">${price.toFixed(2)}</div>
           <div className="flex items-center">
             <Star className="h-4 w-4 fill-yellow-500 text-yellow-500 mr-1" />
@@ -59,7 +59,7 @@ export function ProductCard({ _id, name, price, rating, image, reviewCount, deta
               {rating.toFixed(1)} ({reviewCount})
             </span>
           </div>
-        </div>
+        </div> */}
         <div className="flex items-center text-sm text-zinc-400">
           <Truck className="h-4 w-4 mr-1" />
           <span>Delivery: {deliveryEstimate}</span>
