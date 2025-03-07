@@ -3,14 +3,22 @@ import { getCategoryById } from "@/services/categories-service"
 import CategoryEditForm from "@/components/admin/CategoryEditForm"
 import type { Metadata } from "next"
 
-export const metadata: Metadata = {
-  title: "Edit Category",
-  description: "Update an existing product category",
+type Props = {
+  params: Promise<{ id: string }>
 }
 
-export default async function EditCategoryPage({ params }: { params: { id: string } }) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params
+  return {
+    title: "Edit Category",
+    description: "Update an existing product category",
+  }
+}
+
+export default async function EditCategoryPage({ params }: Props) {
   const queryClient = new QueryClient()
-  const { id } = params
+  const { id } = await params
+
   await queryClient.prefetchQuery({
     queryKey: ["category", id],
     queryFn: () => getCategoryById(id),
