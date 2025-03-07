@@ -5,7 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Package, ShoppingCart, Settings, LogOut, Menu, Users, LineChart } from "lucide-react"
+import { LayoutDashboard, Package, ShoppingCart, Settings, LogOut, Menu, Users, LineChart, Package2, Contact } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { UserButton, UserProfile } from "@clerk/clerk-react"
@@ -25,6 +25,7 @@ const navigation = [
             { name: "Add Product", href: "/admin/products/new" },
         ],
     },
+    { name: "Categories", href: "/admin/categories", icon: Package2 },
     {
         name: "Orders",
         href: "/admin/orders",
@@ -36,6 +37,7 @@ const navigation = [
         ],
     },
     { name: "Customers", href: "/admin/customers", icon: Users },
+    { name: "Contacts", href: "/admin/contacts", icon: Contact },
 ]
 
 export default function AdminProvider({

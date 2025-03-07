@@ -1,9 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server"
 import stripe from "@/lib/stripe"
+import { getAuth } from "@clerk/nextjs/server"
 
 export async function POST(req: NextRequest) {
   try {
-
+    const { userId } = getAuth(req)
     const { items, customerInfo } = await req.json()
 
     if (!items || items.length === 0) {
@@ -21,6 +22,8 @@ export async function POST(req: NextRequest) {
       quantity: item.quantity,
     }))
 
+    const totalAmount = items.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0)
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card", "paypal"],
       line_items: lineItems,
@@ -28,8 +31,12 @@ export async function POST(req: NextRequest) {
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
       metadata: {
+        userId: userId || "guest",
         email: customerInfo.email,
-        discordId: customerInfo.discordId,
+        discordId: customerInfo.discordId || "",
+        userName: customerInfo.userName || "",
+        totalAmount: totalAmount.toString(),
+        items: JSON.stringify(items),
       },
       shipping_options: [
         {

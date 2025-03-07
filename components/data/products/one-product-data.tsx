@@ -33,6 +33,7 @@ const OneProductData: React.FC<OneProductDataProps> = ({ id }) => {
         const p = data;
         return (
             <ProductDetails
+                category={p.category}
                 _id={p._id}
                 price={p.price}
                 rating={p.rating}

@@ -57,10 +57,10 @@ const Footer = () => {
         {/* Copyright */}
         <span className="text-muted-foreground">
           &copy; {new Date().getFullYear()}{" "}
-          <Link href="/" target="_blank">
+          <Link href="https://rambodalemi.com" target="_blank">
             Heistenburg
+            . All rights reserved.
           </Link>
-          . All rights reserved.
         </span>
 
         <div className="flex items-center gap-5 text-muted-foreground">

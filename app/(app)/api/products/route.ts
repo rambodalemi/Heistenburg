@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server"
 import dbConnect from "@/lib/mongodb"
 import Product from "@/models/Product"
+import Category from "@/models/Category"
 import { productSchema } from "@/lib/validation/product"
 
 export async function GET() {
   try {
     await dbConnect()
-
-    const products = await Product.find({}).lean()
-
+    await Category.findOne() 
+    const products = await Product.find({}).populate("category").lean()
     return NextResponse.json(products)
   } catch (error) {
     console.error("GET /api/products error:", error)
@@ -28,6 +28,11 @@ export async function POST(req: Request) {
 
     const body = await req.json()
     const validatedData = productSchema.parse(body)
+
+    if (validatedData.category === "uncategorized" || validatedData.category === "") {
+      validatedData.category = null
+    }
+
     const product = await Product.create(validatedData)
 
     return NextResponse.json(product)

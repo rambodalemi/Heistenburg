@@ -1,17 +1,19 @@
 import mongoose from "mongoose"
+import type { CategoryType } from "./Category"
 
 export interface ProductType {
-  _id: string;
-  name: string;
-  description: string;
-  details: string;
-  price: number;
-  rating: number;
-  reviewCount: number;
-  image: string;
-  features: string[];
-  stock: number;
-  deliveryEstimate: string;
+  _id: string
+  name: string
+  description: string
+  details: string
+  price: number
+  rating: number
+  reviewCount: number
+  image: string
+  features: string[]
+  stock: number
+  deliveryEstimate: string
+  category: string | CategoryType | null
 }
 
 const ProductSchema = new mongoose.Schema({
@@ -25,6 +27,10 @@ const ProductSchema = new mongoose.Schema({
   features: [String],
   stock: { type: Number, required: true },
   deliveryEstimate: { type: String, default: "1-2 days" },
-});
+  category: { type: mongoose.Schema.Types.ObjectId, ref: "Category", default: null },
+})
 
-export default mongoose.models.Product || mongoose.model("Product", ProductSchema);
+const Product = mongoose.models.Product || mongoose.model("Product", ProductSchema)
+
+export default Product
+

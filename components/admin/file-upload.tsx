@@ -12,9 +12,10 @@ import { Button } from "@/components/ui/button"
 interface ImageUploadProps {
   value: string
   onChange: (url: string) => void
+  onRemove: () => void
 }
 
-export function ImageUpload({ value, onChange }: ImageUploadProps) {
+export function ImageUpload({ value, onChange, onRemove }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false)
 
   // This is a mock upload function

@@ -11,21 +11,43 @@ export async function GET(req: NextRequest) {
     }
 
     // Retrieve the session from Stripe
-    const session = await stripe.checkout.sessions.retrieve(sessionId)
+    const session = await stripe.checkout.sessions.retrieve(sessionId, {
+      expand: ["line_items", "customer_details"],
+    })
 
     // Check if the payment was successful
     const isPaymentSuccessful = session.payment_status === "paid"
 
+    if (!isPaymentSuccessful) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Payment not successful. Status: ${session.payment_status}`,
+        },
+        { status: 400 },
+      )
+    }
+
     return NextResponse.json({
-      success: isPaymentSuccessful,
+      success: true,
       session: {
         id: session.id,
         payment_status: session.payment_status,
         customer_email: session.customer_details?.email,
+        metadata: session.metadata,
+        line_items: session.line_items?.data,
+        customer_details: session.customer_details,
       },
     })
   } catch (error) {
     console.error("Error verifying payment:", error)
-    return NextResponse.json({ success: false, error: "Error verifying payment" }, { status: 500 })
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Error verifying payment",
+      },
+      { status: 500 },
+    )
   }
 }
+

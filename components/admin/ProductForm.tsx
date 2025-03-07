@@ -1,30 +1,31 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { useMutation } from "@tanstack/react-query"
-import { toast } from "sonner"
-import { Loader2 } from "lucide-react"
-
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useRouter } from "next/navigation"
+import { createProduct } from "@/services/products-service"
+import { getAllCategories } from "@/services/categories-service"
+import { productSchema, type ProductFormValues } from "@/lib/validation/product"
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { productSchema } from "@/lib/validation/product"
-import { ImageUpload } from "./file-upload"
-import type { ProductType } from "@/models/Product"
-
-type ProductFormValues = Omit<ProductType, "_id">
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { toast } from "sonner"
+import { useState } from "react"
+import { ImageUpload } from "./file-upload" // Adjust the import path as needed
 
 export default function ProductForm() {
   const router = useRouter()
-  const [imageUrl, setImageUrl] = useState<string>("")
+  const queryClient = useQueryClient()
+  const [features, setFeatures] = useState<string[]>([""])
 
-  // Initialize form with React Hook Form and Zod validation
+  const { data: categories = [] } = useQuery({
+    queryKey: ["allCategories"],
+    queryFn: getAllCategories,
+  })
+
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: {
@@ -32,76 +33,65 @@ export default function ProductForm() {
       description: "",
       details: "",
       price: 0,
-      rating: 0,
-      reviewCount: 0,
       image: "",
-      features: [],
-      stock: 0,
+      features: [""],
+      stock: 1,
       deliveryEstimate: "1-2 days",
+      category: "none",
     },
   })
 
-  // Create product mutation with React Query
-  const { mutate, isPending } = useMutation({
-    mutationFn: async (data: ProductFormValues) => {
-      const response = await fetch("/api/products", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || "Failed to create product")
-      }
-
-      return response.json()
-    },
+  const createMutation = useMutation({
+    mutationFn: createProduct,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allProducts"] })
       toast.success("Product created successfully")
-      router.push("/products")
-      router.refresh()
+      router.push("/admin/products")
     },
-    onError: (error) => {
-      toast.error(error.message || "Failed to create product")
+    onError: (error: Error) => {
+      toast.error(`Failed to create product: ${error.message}`)
     },
   })
 
-  // Form submission handler
   function onSubmit(data: ProductFormValues) {
-    // Include the uploaded image URL
-    mutate({
-      ...data,
-      image: imageUrl,
-    })
+    // Filter out empty features
+    data.features = features.filter((feature) => feature.trim() !== "")
+    // Convert empty string category to null
+    if (data.category === "none") {
+      data.category = null
+    }
+    createMutation.mutate(data)
   }
 
-  // Handle feature input as comma-separated values
-  const handleFeaturesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const featuresString = e.target.value
-    form.setValue(
-      "features",
-      featuresString
-        .split(",")
-        .map((feature) => feature.trim())
-        .filter(Boolean),
-    )
+  const addFeature = () => {
+    setFeatures([...features, ""])
+  }
+
+  const updateFeature = (index: number, value: string) => {
+    const updatedFeatures = [...features]
+    updatedFeatures[index] = value
+    setFeatures(updatedFeatures)
+    form.setValue("features", updatedFeatures)
+  }
+
+  const removeFeature = (index: number) => {
+    const updatedFeatures = features.filter((_, i) => i !== index)
+    setFeatures(updatedFeatures)
+    form.setValue("features", updatedFeatures)
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid gap-6 md:grid-cols-2">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Product Name</FormLabel>
+                <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Premium Headphones" {...field} />
+                  <Input placeholder="Product name" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -113,11 +103,12 @@ export default function ProductForm() {
             name="price"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Price ($)</FormLabel>
+                <FormLabel>Price</FormLabel>
                 <FormControl>
                   <Input
                     type="number"
-                    placeholder="99.99"
+                    step="0.01"
+                    placeholder="0.00"
                     {...field}
                     onChange={(e) => field.onChange(Number.parseFloat(e.target.value))}
                   />
@@ -126,52 +117,86 @@ export default function ProductForm() {
               </FormItem>
             )}
           />
-        </div>
 
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Short Description</FormLabel>
-              <FormControl>
-                <Textarea placeholder="A brief description of the product" className="resize-none" {...field} />
-              </FormControl>
-              <FormDescription>This will be displayed in product cards and search results.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem className="col-span-full">
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="Brief description of the product" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="details"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Detailed Description</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Comprehensive product details and specifications"
-                  className="min-h-[120px]"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="details"
+            render={({ field }) => (
+              <FormItem className="col-span-full">
+                <FormLabel>Details</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="Detailed information about the product" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <div className="grid gap-6 md:grid-cols-2">
+          <FormField
+            control={form.control}
+            name="image"
+            render={({ field }) => (
+              <FormItem className="col-span-full">
+                <FormLabel>Product Image</FormLabel>
+                <FormControl>
+                  <ImageUpload value={field.value} onChange={field.onChange} onRemove={() => field.onChange("")} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="col-span-full">
+            <FormLabel>Features</FormLabel>
+            <FormDescription>Add key features of your product</FormDescription>
+            <div className="space-y-2 mt-2">
+              {features.map((feature, index) => (
+                <div key={index} className="flex gap-2">
+                  <Input
+                    value={feature}
+                    onChange={(e) => updateFeature(index, e.target.value)}
+                    placeholder={`Feature ${index + 1}`}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => removeFeature(index)}
+                    disabled={features.length <= 1}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ))}
+            </div>
+            <Button type="button" variant="outline" onClick={addFeature} className="mt-2">
+              Add Feature
+            </Button>
+          </div>
+
           <FormField
             control={form.control}
             name="stock"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Stock Quantity</FormLabel>
+                <FormLabel>Stock</FormLabel>
                 <FormControl>
                   <Input
                     type="number"
-                    placeholder="100"
+                    placeholder="0"
                     {...field}
                     onChange={(e) => field.onChange(Number.parseInt(e.target.value))}
                   />
@@ -194,41 +219,36 @@ export default function ProductForm() {
               </FormItem>
             )}
           />
+
+          <FormField
+            control={form.control}
+            name="category"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Category</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value || "none"}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="none">Uncategorized</SelectItem>
+                    {categories.map((category) => (
+                      <SelectItem key={category._id} value={category._id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
-        <FormItem>
-          <FormLabel>Features (comma-separated)</FormLabel>
-          <FormControl>
-            <Input placeholder="Noise cancellation, Bluetooth 5.0, 30-hour battery" onChange={handleFeaturesChange} />
-          </FormControl>
-          <FormDescription>Enter product features separated by commas</FormDescription>
-          <FormMessage />
-        </FormItem>
-
-        <FormField
-          control={form.control}
-          name="image"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Product Image</FormLabel>
-              <FormControl>
-                <ImageUpload
-                  value={imageUrl}
-                  onChange={(url) => {
-                    setImageUrl(url)
-                    field.onChange(url)
-                  }}
-                />
-              </FormControl>
-              <FormDescription>Upload a high-quality image of your product</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <Button type="submit" disabled={isPending} className="w-full md:w-auto">
-          {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Create Product
+        <Button type="submit" disabled={createMutation.isPending} className="w-full">
+          {createMutation.isPending ? "Creating..." : "Create Product"}
         </Button>
       </form>
     </Form>

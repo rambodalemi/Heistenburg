@@ -5,17 +5,24 @@ import Landing from "@/components/Home/landing"
 import NewsletterSection from "@/components/Home/news-letter"
 import Reviews from "@/components/Home/reviews"
 import Trust from "@/components/Home/trust"
-import ProductLists from "./products/page"
+import ProductsCarousel from "@/components/Home/products-carousel"
+import ContactForm from "@/components/forms/contact/contact-form.tsx"
+
 
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col">
       <Landing />
-      <ProductLists />
+      <ProductsCarousel />
       <Feutures />
       <FAQPage />
       <Reviews />
       <Hero />
+      <main className="min-h-screen bg-gradient-to-br from-black via-black to-black/90 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <ContactForm />
+        </div>
+      </main>
       <Trust />
       <NewsletterSection />
     </div>

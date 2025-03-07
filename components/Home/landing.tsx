@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import localFont from "next/font/local";
 import { cn } from "@/lib/utils";
 import ShinyText from "../shiney-text";
+import Link from "next/link";
 
 const gta = localFont({
     src: "./Pricedown-Bl.otf",
@@ -38,15 +39,19 @@ export default function LandingSection() {
                         </div>
 
                         <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
-                            <Button
-                                size="lg"
-                                className="bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white border-0"
-                            >
-                                Shop Now
-                            </Button>
-                            <Button size="lg" variant="outline" className="border-amber-400 text-amber-400 hover:bg-amber-400/10">
-                                Learn More
-                            </Button>
+                            <Link href="">
+                                <Button
+                                    size="lg"
+                                    className="bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white border-0"
+                                >
+                                    Modded Cars
+                                </Button>
+                            </Link>
+                            <Link href="">
+                                <Button size="lg" variant="outline" className="border-amber-400 text-amber-400 hover:bg-amber-400/10">
+                                    Modded Heists
+                                </Button>
+                            </Link>
                         </div>
 
                         {/* Trust indicators */}
@@ -107,7 +112,7 @@ export default function LandingSection() {
                     </p>
                 </div>
             </div>
-        </section>
+        </section >
     )
 }
 

@@ -1,25 +1,13 @@
-import {
-  QueryClient,
-  HydrationBoundary,
-  dehydrate,
-} from "@tanstack/react-query";
-import { getAllProducts } from "@/services/products-service";
-import AllProductsData from "@/components/data/products/all-products.data";
-import { Card } from "@/components/ui/card";
+import { HydrationBoundary, dehydrate } from "@tanstack/react-query"
+import { QueryClient } from "@tanstack/react-query"
+import ProductListWithFilters from "@/components/products/ProductListWithFilters"
 
-export default async function ProductLists() {
-  const queryClient = new QueryClient();
-
-  await queryClient.prefetchQuery({
-    queryKey: ["allProducts"],
-    queryFn: getAllProducts,
-  });
+export default function ProductLists() {
+  const queryClient = new QueryClient()
 
   return (
-
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <AllProductsData />
+      <ProductListWithFilters />
     </HydrationBoundary>
-  );
-};
-
+  )
+}
