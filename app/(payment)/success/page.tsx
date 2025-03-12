@@ -1,18 +1,22 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import { CheckCircle, Loader2 } from "lucide-react"
+import { useSearchParams, useRouter } from "next/navigation"
+import { CheckCircle, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
+import { useBasket } from "@/components/shared/nav/basket-context"
+import { useUser } from "@clerk/nextjs"
+import { toast } from "sonner"
 
-export default function SuccessPage() {
-  const router = useRouter()
+export default function PaymentConfirmationPage() {
   const searchParams = useSearchParams()
+  const router = useRouter()
+  const [status, setStatus] = useState<"loading" | "success" | "cancelled">("loading")
+  const [order, setOrder] = useState<any>(null)
+  const { clearCart } = useBasket()
+  const { isSignedIn } = useUser()
   const sessionId = searchParams.get("session_id")
-  const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
-  const [orderNumber, setOrderNumber] = useState<string | null>(null)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [errorDetails, setErrorDetails] = useState<string | null>(null)
 
   useEffect(() => {
     if (!sessionId) {
@@ -20,98 +24,118 @@ export default function SuccessPage() {
       return
     }
 
-    const verifyPaymentAndSaveOrder = async () => {
+    const verifyPayment = async () => {
       try {
-        // First verify the payment was successful
+        // First verify the payment with Stripe
         const verifyResponse = await fetch(`/api/verify-payment?session_id=${sessionId}`)
         const verifyData = await verifyResponse.json()
 
-        if (!verifyData.success) {
-          console.error("Payment verification failed:", verifyData.error)
-          setStatus("error")
-          setErrorMessage(verifyData.error || "Payment verification failed")
-          setErrorDetails(JSON.stringify(verifyData, null, 2))
-          return
-        }
-
-        // Then save the order
-        const saveOrderResponse = await fetch("/api/orders", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            stripeSessionId: sessionId,
-          }),
-        })
-
-        const orderData = await saveOrderResponse.json()
-
-        if (!saveOrderResponse.ok) {
-          console.error("Error saving order:", orderData)
-          setStatus("error")
-          setErrorMessage(orderData.error || "Failed to save order")
-          setErrorDetails(JSON.stringify(orderData, null, 2))
-          return
-        }
-
-        if (orderData._id) {
-          setOrderNumber(orderData._id)
+        if (verifyData.success) {
           setStatus("success")
+
+          // Then create/fetch the order in our database
+          const orderResponse = await fetch("/api/orders", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ stripeSessionId: sessionId }),
+          })
+
+          const orderData = await orderResponse.json()
+          setOrder(orderData)
+          clearCart()
         } else {
-          setStatus("error")
-          setErrorMessage("Order creation failed")
-          setErrorDetails(JSON.stringify(orderData, null, 2))
+          setStatus("cancelled")
         }
       } catch (error) {
-        console.error("Error processing order:", error)
-        setStatus("error")
-        setErrorMessage("An unexpected error occurred")
-        setErrorDetails(error as any)
+        console.error("Error processing payment confirmation:", error)
+        setStatus("cancelled")
+        toast.error("Error processing payment", {
+          description: "There was a problem confirming your payment.",
+        })
       }
     }
 
-    verifyPaymentAndSaveOrder()
-  }, [sessionId, router])
+    verifyPayment()
+  }, [sessionId, clearCart, router])
+
+  if (status === "loading") {
+    return <div className="flex justify-center items-center h-screen">Processing your order...</div>
+  }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] px-4">
-      {status === "loading" && (
-        <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
-          <h1 className="text-2xl font-bold mb-2">Processing your order...</h1>
-          <p className="text-muted-foreground">Please wait while we confirm your payment.</p>
-        </div>
-      )}
+    <div className="container mx-auto px-4 py-16">
+      {status === "success" ? (
+        <div className="space-y-8">
+          <div className="text-center">
+            <CheckCircle className="mx-auto h-16 w-16 text-green-500 mb-4" />
+            <h1 className="text-3xl font-bold mb-4">Payment Successful!</h1>
+            <p className="text-xl mb-2">Thank you for your purchase. Your order has been confirmed.</p>
+            {!isSignedIn && order && (
+              <div className="p-4 rounded-lg max-w-md mx-auto mt-4 mb-8">
+                <p className="font-medium mb-2">Important: Save your order information</p>
+                <p className="text-sm mb-2">
+                  Your order ID is: <span className="font-bold">{order._id}</span>
+                </p>
+                <p className="text-sm">You'll need this ID and your email to track your order status.</p>
+              </div>
+            )}
+          </div>
 
-      {status === "success" && (
-        <div className="text-center max-w-md">
-          <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-6" />
-          <h1 className="text-3xl font-bold mb-2">Thank you for your order!</h1>
-          <p className="mb-6 text-muted-foreground">
-            Your order #{orderNumber} has been successfully placed. You will receive a confirmation email shortly.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button onClick={() => router.push("/dashboard/orders")}>View your orders</Button>
-            <Button variant="outline" onClick={() => router.push("/")}>
-              Continue shopping
+          {order && (
+            <div className="max-w-3xl mx-auto p-6 rounded-lg shadow-sm border">
+              <h2 className="text-xl font-bold mb-4">Order Details</h2>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-medium mb-2">Items</h3>
+                  <div className="space-y-2 divide-y">
+                    {order.items.map((item: any, index: number) => (
+                      <div key={index} className="flex justify-between py-2">
+                        <div>
+                          <p className="font-medium">{item.name}</p>
+                          <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
+                        </div>
+                        <p>${(item.price * item.quantity).toFixed(2)}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex justify-between font-bold text-lg pt-2 border-t">
+                  <span>Total</span>
+                  <span>${order.totalAmount.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-center gap-4 mt-8">
+            <Button asChild>
+              <Link href="/">Return to Home</Link>
             </Button>
+            {!isSignedIn && (
+              <Button asChild variant="outline">
+                <Link href="/orders/track">Track Your Order</Link>
+              </Button>
+            )}
           </div>
         </div>
-      )}
-
-      {status === "error" && (
-        <div className="text-center max-w-md">
-          <h1 className="text-2xl font-bold mb-2">Something went wrong</h1>
-          <p className="mb-6 text-muted-foreground">We couldn`&apos;`t process your order. {errorMessage}</p>
-          <p className="mb-6 text-muted-foreground">Please contact our support team for assistance.</p>
-          {errorDetails && (
-            <details className="mb-6 text-left">
-              <summary className="cursor-pointer">Error Details</summary>
-              <pre className="mt-2 p-2 bg-gray-100 rounded text-xs overflow-auto">{errorDetails}</pre>
-            </details>
-          )}
-          <Button onClick={() => router.push("/")}>Return to homepage</Button>
+      ) : (
+        <div className="text-center">
+          <XCircle className="mx-auto h-16 w-16 text-red-500 mb-4" />
+          <h1 className="text-3xl font-bold mb-4">Payment Cancelled</h1>
+          <p className="text-xl mb-8">
+            Your payment was not completed. Please try again or contact support if you need assistance.
+          </p>
+          <div className="flex justify-center gap-4">
+            <Button asChild>
+              <Link href="/">Return to Home</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/checkout">Try Again</Link>
+            </Button>
+          </div>
         </div>
       )}
     </div>

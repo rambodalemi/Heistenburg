@@ -7,11 +7,13 @@ import Reviews from "@/components/Home/reviews"
 import Trust from "@/components/Home/trust"
 import ProductsCarousel from "@/components/Home/products-carousel"
 import ContactForm from "@/components/forms/contact/contact-form.tsx"
+import TrackOrderPrompt from "@/components/track-order-prompt"
 
 
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col">
+      <TrackOrderPrompt variant="compact" className="my-8 container mx-auto" />
       <Landing />
       <ProductsCarousel />
       <Feutures />

@@ -93,3 +93,25 @@ export async function POST(req: NextRequest) {
   }
 }
 
+export async function GET(req: NextRequest) {
+  try {
+    const { userId } = getAuth(req)
+
+
+    await dbConnect()
+
+    // Return all orders for admin
+    const orders = await Order.find().sort({ createdAt: -1 })
+    return NextResponse.json(orders)
+  } catch (error) {
+    console.error("Error fetching orders:", error)
+    return NextResponse.json(
+      {
+        error: "An error occurred while fetching orders",
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 },
+    )
+  }
+}
+

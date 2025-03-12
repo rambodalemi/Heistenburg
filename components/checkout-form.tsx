@@ -12,18 +12,21 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
+import { useUser } from "@clerk/nextjs"
 
 export default function CheckoutForm() {
   const { cart } = useBasket()
   const router = useRouter()
+  const { isSignedIn, user } = useUser()
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
-    email: "",
+    email: user?.primaryEmailAddress?.emailAddress || "",
     discordId: "",
+    userName: user?.fullName || "",
   })
 
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const total = subtotal 
+  const total = subtotal
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -37,6 +40,11 @@ export default function CheckoutForm() {
       setIsLoading(true)
 
       console.log("Submitting checkout form with data:", { cart, formData })
+
+      // Store email for guest users to retrieve orders later
+      if (!isSignedIn) {
+        localStorage.setItem("guestOrderEmail", formData.email)
+      }
 
       const response = await fetch("/api/checkout", {
         method: "POST",
@@ -102,6 +110,9 @@ export default function CheckoutForm() {
                   value={formData.email}
                   onChange={handleInputChange}
                 />
+                {!isSignedIn && (
+                  <p className="text-sm text-muted-foreground mt-1">You'll need this email to track your order later</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="discordId">Discord ID</Label>
@@ -111,6 +122,16 @@ export default function CheckoutForm() {
                   placeholder="Your Discord ID"
                   required
                   value={formData.discordId}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="userName">Full Name (Optional)</Label>
+                <Input
+                  id="userName"
+                  name="userName"
+                  placeholder="Your Name"
+                  value={formData.userName}
                   onChange={handleInputChange}
                 />
               </div>

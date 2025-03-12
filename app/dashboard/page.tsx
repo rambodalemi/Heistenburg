@@ -49,8 +49,8 @@ export default function OrdersPage() {
       <h1 className="text-2xl font-bold">Your Orders</h1>
 
       {orders.length === 0 ? (
-        <Card className="p-6 text-center">
-          <p className="text-muted-foreground">You haven`&apos;`t placed any orders yet.</p>
+        <Card className="p-6 text-center bg-transparent">
+          <p className="text-muted-foreground">You haven&apos;t placed any orders yet.</p>
           <Button className="mt-4" onClick={() => router.push("/")}>
             Start Shopping
           </Button>
