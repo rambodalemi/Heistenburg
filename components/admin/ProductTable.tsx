@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { useQuery } from "@tanstack/react-query"
-import { getAllProducts } from "@/services/products-service"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { getAllProducts, deleteProduct } from "@/services/products-service"
 import type { ProductType } from "@/models/Product"
 import type { CategoryType } from "@/models/Category"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -19,6 +19,16 @@ import { MoreHorizontal, ArrowUpDown } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { getAllCategories } from "@/services/categories-service"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { AlertCircle } from "lucide-react"
+import { toast } from "sonner"
 
 type SortableProductKeys = Extract<keyof ProductType, string>
 
@@ -26,6 +36,9 @@ export function ProductTable() {
   const [sortColumn, setSortColumn] = useState<SortableProductKeys>("name")
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
   const [searchTerm, setSearchTerm] = useState("")
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [productToDelete, setProductToDelete] = useState<ProductType | null>(null)
+  const queryClient = useQueryClient()
 
   const {
     data: products = [],
@@ -43,6 +56,19 @@ export function ProductTable() {
   } = useQuery({
     queryKey: ["allCategories"],
     queryFn: getAllCategories,
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteProduct,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allProducts"] })
+      toast.success("Product deleted successfully")
+      setDeleteDialogOpen(false)
+      setProductToDelete(null)
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to delete product: ${error.message}`)
+    },
   })
 
   if (isLoadingProducts || isLoadingCategories) return <div>Loading...</div>
@@ -92,7 +118,7 @@ export function ProductTable() {
           className="max-w-sm"
         />
         <Button asChild>
-          <Link href="/admin/products/create">Add New Product</Link>
+          <Link href="/admin/products/new">Add New Product</Link>
         </Button>
       </div>
       <div className="rounded-md border">
@@ -149,7 +175,15 @@ export function ProductTable() {
                       <DropdownMenuItem asChild>
                         <Link href={`/products/${product._id}`}>View</Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem>Delete</DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setProductToDelete(product)
+                          setDeleteDialogOpen(true)
+                        }}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        Delete
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -158,6 +192,31 @@ export function ProductTable() {
           </TableBody>
         </Table>
       </div>
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-destructive" />
+              Confirm Deletion
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete {productToDelete?.name}? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => productToDelete && deleteMutation.mutate(productToDelete._id)}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
